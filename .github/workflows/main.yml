@@ -1,0 +1,54 @@
+name: Deploy a Static Website to S3 Using GitHub Actions and Terraform
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      BUCKET_NAME: static-website-terraform-github
+      AWS_REGION: us-east-1
+      TF_VERSION: 1.6.6
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve
+          -var="bucket_name=${BUCKET_NAME}"
+          -var="aws_region=${AWS_REGION}"
+
+      - name: Upload Website Files
+        run: |
+          aws s3 sync . s3://$BUCKET_NAME --delete --exclude ".git/*"
+
+      - name: Website URL
+        run: |
+          echo "Website URL: http://$BUCKET_NAME.s3-website-$AWS_REGION.amazonaws.com"
