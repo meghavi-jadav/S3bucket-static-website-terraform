@@ -34,9 +34,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform Init
+        working-directory: terraform
         run: terraform init
 
       - name: Terraform Plan
+        working-directory: terraform
         run: terraform plan
 
       - name: Terraform Apply
