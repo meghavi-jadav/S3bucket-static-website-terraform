@@ -1,6 +1,7 @@
 variable "bucket_name"{
   type = string
-  description = "static-website-terraform-github"
+  description = "Name of the S3 bucket"
+  default     = "static-website-terraform-github"
 }
 
 variable "aws_region"{
