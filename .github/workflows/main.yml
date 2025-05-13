@@ -47,10 +47,10 @@ jobs:
       - name: Terraform Apply
         working-directory: terraform
         run: |
-          export TF_LOG=DEBUG
-          terraform apply -auto-approve
-            -var="bucket_name=${BUCKET_NAME}"
+          terraform apply -auto-approve \
+            -var="bucket_name=${BUCKET_NAME}" \
             -var="aws_region=${AWS_REGION}"
+
 
       - name: Upload Website Files
         run: |
